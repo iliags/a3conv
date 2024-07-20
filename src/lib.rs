@@ -1,44 +1,12 @@
+use face_id::Face;
 use nalgebra::Vector3;
 use std::collections::HashMap;
 use std::fs::File;
-use std::io::{BufRead, BufReader, Error, ErrorKind};
-use std::ops;
+use std::io::{BufRead, BufReader, BufWriter, Error, ErrorKind, Write};
 
 pub mod face_id;
 
 type Vertex = Vector3<f32>;
-/*
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
-pub struct Vertex {
-    x: f32,
-    y: f32,
-    z: f32,
-}
-
-impl ops::Add for Vertex {
-    type Output = Self;
-
-    fn add(self, other: Self) -> Self {
-        Self {
-            x: self.x + other.x,
-            y: self.y + other.y,
-            z: self.z + other.z,
-        }
-    }
-}
-
-impl ops::Sub for Vertex {
-    type Output = Self;
-
-    fn sub(self, other: Self) -> Self {
-        Self {
-            x: self.x - other.x,
-            y: self.y - other.y,
-            z: self.z - other.z,
-        }
-    }
-}
-    */
 
 #[derive(Debug)]
 pub struct Region {
@@ -47,7 +15,7 @@ pub struct Region {
     ceiling_height: f32,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Wall {
     name: String,
     vertex1_index: usize,
@@ -188,11 +156,42 @@ pub fn build_graph(vertices: Vec<Vertex>, walls: Vec<Wall>) -> Graph {
     graph
 }
 
-fn write_output(
-    faces: Vec<Vec<usize>>,
-    normals: Vec<Vec<f32>>,
+pub fn write_output(
+    faces: Vec<Face>,
+    normals: Vec<Vector3<f32>>,
     output_file: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
     // ... implementation
+    Ok(())
+}
+
+pub fn write_to_obj(
+    faces: &[Face],
+    vertices: &[Vertex],
+    normals: &[Vector3<f32>],
+    output_file: &str,
+) -> Result<(), std::io::Error> {
+    let file = File::create(output_file)?;
+    let mut writer = BufWriter::new(file);
+
+    // Write vertices
+    for (i, vertex) in vertices.iter().enumerate() {
+        write!(writer, "v {} {} {}\n", vertex.x, vertex.y, vertex.z)?;
+    }
+
+    // Write normals
+    for (i, normal) in normals.iter().enumerate() {
+        write!(writer, "vn {} {} {}\n", normal.x, normal.y, normal.z)?;
+    }
+
+    // Write faces
+    for face in faces {
+        write!(writer, "f")?;
+        for (i, vertex_index) in face.outer_loop.iter().enumerate() {
+            write!(writer, " {}//{}", vertex_index + 1, i + 1)?;
+        }
+        writeln!(writer)?;
+    }
+
     Ok(())
 }

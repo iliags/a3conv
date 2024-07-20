@@ -1,12 +1,11 @@
 use crate::{Graph, Vertex};
-use core::prelude::v1;
 use nalgebra::Vector3;
 use std::collections::HashSet;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Face {
-    outer_loop: Vec<usize>,
-    inner_loops: Vec<Vec<usize>>,
+    pub outer_loop: Vec<usize>,
+    pub inner_loops: Vec<Vec<usize>>,
 }
 
 pub fn identify_faces(graph: &Graph) -> Vec<Face> {
