@@ -1,5 +1,6 @@
 use a3conv::*;
 use clap::Parser;
+use face_id::identify_faces;
 
 /// Convert A3 maps to mesh data using a provided *.wmp and *.wdl file
 #[derive(Parser, Debug)]
@@ -28,4 +29,10 @@ fn main() {
     println!("Vertices: {:?}", vertices.len());
     println!("Regions: {:?}", regions.len());
     println!("Walls: {:?}", walls.len());
+
+    let graph = build_graph(vertices, walls);
+    //println!("Graph: {:?}", graph);
+
+    let faces = identify_faces(&graph);
+    println!("Faces: {:?}", faces);
 }
