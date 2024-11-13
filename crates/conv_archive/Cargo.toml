@@ -2,5 +2,6 @@
 name = "conv_archive"
 version = "0.1.0"
 edition = "2021"
+description = "A library to extract files from the A3 archive format."
 
 [dependencies]

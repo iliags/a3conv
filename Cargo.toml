@@ -3,6 +3,7 @@ name = "a3conv"
 version = "0.1.0"
 edition = "2021"
 authors = ["James Lennon"]
+description = "A tool to convert A3 files to a more usable format."
 license = "MIT/Apache-2.0"
 publish = false
 include = ["LICENSE-APACHE", "LICENSE-MIT", "**/*.rs", "Cargo.toml"]
