@@ -2,7 +2,34 @@
 name = "a3conv"
 version = "0.1.0"
 edition = "2021"
+authors = ["James Lennon"]
+license = "MIT/Apache-2.0"
+publish = false
+include = ["LICENSE-APACHE", "LICENSE-MIT", "**/*.rs", "Cargo.toml"]
+
+# TODO: Add a UI
+#default-run = "a3conv_cli"
+
+[workspace]
+members = ["crates/*"]
+resolver = "2"
+
+[workspace.lints.rust]
+unsafe_op_in_unsafe_fn = "warn"
+#missing_docs = "warn"
+unsafe_code = "deny"
+
+[workspace.dependencies]
+clap = { version = "4.5", features = ["derive"] }
 
 [dependencies]
-clap = { version = "4.5", features = ["derive"] }
-nalgebra = "0.33"
+clap = { workspace = true }
+
+[[bin]]
+name = "a3conv_cli"
+path = "src/main.rs"
+
+# TODO: Add a UI
+#[[bin]]
+#name = "a3conv_ui"
+#path = "src/main.rs"

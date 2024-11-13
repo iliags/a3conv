@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables)]
 use crate::{Graph, Vertex};
 use nalgebra::Vector3;
 use std::collections::HashSet;
@@ -111,8 +112,6 @@ fn dfs(
 
 #[cfg(test)]
 mod tests {
-    use std::default;
-
     use super::*;
 
     #[test]
