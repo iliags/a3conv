@@ -21,9 +21,13 @@ unsafe_op_in_unsafe_fn = "warn"
 unsafe_code = "deny"
 
 [workspace.dependencies]
+conv_archive = { path = "crates/conv_archive" }
+
 clap = { version = "4.5", features = ["derive"] }
 
 [dependencies]
+conv_archive = { workspace = true }
+
 clap = { workspace = true }
 
 [[bin]]

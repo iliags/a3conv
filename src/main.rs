@@ -1,20 +1,27 @@
 use clap::Parser;
 
-/// Convert A3 maps to mesh data using a provided *.wmp and *.wdl file
+// TODO: Subcommands for each step of the conversion process
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
-    /// Name of the map (*.wmp) to convert
+    /// Name of the archive to extract
     #[arg(short, long)]
-    map: String,
-
-    /// Name of the output file
-    #[arg(short, long)]
-    output: String,
+    archive: Option<String>,
 }
 
-fn main() {
-    let _args = Args::parse();
+const DEBUG_FILE: &str = "target/debug/apathy.wrs";
 
-    println!("Conversion complete!");
+fn main() {
+    let args = Args::parse();
+
+    let archive = args.archive.unwrap_or(DEBUG_FILE.to_string());
+
+    println!("Extracting archive: {}", archive);
+
+    match conv_archive::extract_archive(&archive, &"TODO".to_string()) {
+        Ok(_) => println!("Extraction complete!"),
+        Err(e) => eprintln!("Error: {}", e),
+    }
+
+    //println!("Conversion complete!");
 }

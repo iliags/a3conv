@@ -1,6 +1,9 @@
-use std::{fs::File, io};
-
-use lzss::{Lzss, SliceReader};
+#![allow(dead_code, unused_imports, unused_variables)]
+use lzss::{Lzss, SliceReader, SliceWriter};
+use std::{
+    fs::File,
+    io::{self, BufReader, Read},
+};
 
 /* QuickBMS script
 comtype lzss
@@ -19,10 +22,22 @@ while offset < asize
 
 // TODO: Add a builder pattern implementation which defaults to the QuickBMS script
 
-pub fn extract_archive(input_path: &str, _output_path: &str) -> Result<(), io::Error> {
-    let file = File::open(input_path)?;
+pub fn extract_archive(input_path: &String, _output_path: &String) -> Result<(), io::Error> {
+    // Open input file
+    let file = File::open(&input_path)?;
+    let mut reader = BufReader::new(file);
 
-    type MyLzss = Lzss<13, 4, 0x20, { 1 << 10 }, { 2 << 10 }>;
+    // Read archive size
+    let mut asize = [0; 4];
+    reader.read_exact(&mut asize)?;
+    let asize = u32::from_be_bytes(asize) as usize;
+
+    // Create decompression instance
+    const NAME_SIZE: usize = 13;
+    type MyLzss = Lzss<NAME_SIZE, 4, 0x20, { 1 << NAME_SIZE }, { 2 << NAME_SIZE }>;
+
+    //let mut output = [0; 30];
+    //MyLzss::decompress_stack(SliceReader::new(&mut reader), output).unwrap();
 
     Ok(())
 }
