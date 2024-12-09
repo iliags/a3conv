@@ -18,10 +18,11 @@ resolver = "2"
 [workspace.lints.rust]
 unsafe_op_in_unsafe_fn = "warn"
 #missing_docs = "warn"
-unsafe_code = "deny"
+#unsafe_code = "deny"
 
 [workspace.dependencies]
 conv_archive = { path = "crates/conv_archive" }
+conv_codec = { path = "crates/conv_codec" }
 
 clap = { version = "4.5", features = ["derive"] }
 
