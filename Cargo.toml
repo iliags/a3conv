@@ -23,11 +23,13 @@ unsafe_op_in_unsafe_fn = "warn"
 [workspace.dependencies]
 conv_archive = { path = "crates/conv_archive" }
 conv_codec = { path = "crates/conv_codec" }
+conv_map = { path = "crates/conv_map" }
 
 clap = { version = "4.5", features = ["derive"] }
 
 [dependencies]
 conv_archive = { workspace = true }
+conv_map = { workspace = true }
 
 clap = { workspace = true }
 
