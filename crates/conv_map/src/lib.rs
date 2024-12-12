@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use nalgebra::Vector3;
 use std::ffi::OsStr;
 use std::fs::File;
