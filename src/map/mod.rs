@@ -1,11 +1,18 @@
 #![allow(dead_code)]
 use nalgebra::Vector3;
+use object::*;
+use region::Region;
 use std::ffi::OsStr;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Error, ErrorKind};
 use std::path::PathBuf;
+use wall::Wall;
 
 type Vertex = Vector3<f32>;
+
+pub mod object;
+pub mod region;
+pub mod wall;
 
 // Note about indexing: the WMP files use direct array indexing when referring to vertices, regions, and walls.
 
@@ -16,68 +23,6 @@ pub struct Map {
     regions: Vec<Region>,
     walls: Vec<Wall>,
     objects: Vec<Object>,
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct Region {
-    name: String,
-    floor_height: f32,
-    ceiling_height: f32,
-}
-
-impl Region {
-    pub fn floor_height(&self) -> f32 {
-        self.floor_height
-    }
-
-    pub fn ceiling_height(&self) -> f32 {
-        self.ceiling_height
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct Wall {
-    name: String,
-    vertex1_index: usize,
-    vertex2_index: usize,
-    region1_index: usize,
-    region2_index: usize,
-
-    // Offsets are used for texture alignment
-    offset_x: f32,
-    offset_y: f32,
-
-    // Textures are read from the *.wdl file
-    wall_texture: String,
-    floor_texture: String,
-    ceiling_texture: String,
-}
-
-#[derive(Debug, Default, Clone)]
-pub enum ObjectType {
-    #[default]
-    Actor,
-    PlayerStart,
-    Thing,
-}
-
-impl From<&str> for ObjectType {
-    fn from(s: &str) -> Self {
-        match s {
-            "PLAYER_START" => ObjectType::PlayerStart,
-            "THING" => ObjectType::Thing,
-            _ => ObjectType::Actor,
-        }
-    }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct Object {
-    object_type: ObjectType,
-    name: String,
-    position: Vertex,
-    angle: f32,
-    region: usize,
 }
 
 #[derive(Debug, Clone)]
@@ -129,7 +74,8 @@ impl Map {
             let line = line.trim_end();
 
             if line.is_empty() || line.starts_with('#') {
-                continue; // Skip empty lines and comments
+                // Skip empty lines and comments
+                continue;
             }
 
             let parts: Vec<&str> = line.split_whitespace().collect();
@@ -155,11 +101,7 @@ impl Map {
                     let name = parts[1].to_string();
                     let floor_hgt: f32 = parts[2].parse().unwrap_or_default();
                     let ceil_hgt: f32 = parts[3].parse().unwrap_or_default();
-                    self.regions.push(Region {
-                        name,
-                        floor_height: floor_hgt,
-                        ceiling_height: ceil_hgt,
-                    });
+                    self.regions.push(Region::new(name, floor_hgt, ceil_hgt));
                 }
                 MapDataType::Wall => {
                     // Parse wall data
@@ -170,7 +112,7 @@ impl Map {
                     let region2_index: usize = parts[5].parse().unwrap_or_default();
                     let offset_x: f32 = parts[6].parse().unwrap_or_default();
                     let offset_y: f32 = parts[7].parse().unwrap_or_default();
-                    self.walls.push(Wall {
+                    self.walls.push(Wall::new(
                         name,
                         vertex1_index,
                         vertex2_index,
@@ -178,25 +120,27 @@ impl Map {
                         region2_index,
                         offset_x,
                         offset_y,
-                        ..Default::default()
-                    });
+                        "".to_string(),
+                        "".to_string(),
+                        "".to_string(),
+                    ));
                 }
                 MapDataType::Object => {
                     let offset: usize = match parts[0] {
                         "PLAYER_START" => 1,
                         _ => 0,
                     };
-                    self.objects.push(Object {
-                        object_type: ObjectType::from(parts[0]),
-                        name: parts[1 - offset].to_string(),
-                        position: Vector3::new(
+                    self.objects.push(Object::new(
+                        ObjectType::from(parts[0]),
+                        parts[1 - offset].to_string(),
+                        Vector3::new(
                             parts[2 - offset].parse().unwrap_or_default(),
                             parts[3 - offset].parse().unwrap_or_default(),
                             0.0,
                         ),
-                        angle: parts[4 - offset].parse().unwrap_or_default(),
-                        region: parts[5 - offset].parse().unwrap_or_default(),
-                    });
+                        parts[4 - offset].parse().unwrap_or_default(),
+                        parts[5 - offset].parse().unwrap_or_default(),
+                    ));
                 }
                 _ => {}
             }
