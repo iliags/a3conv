@@ -1,0 +1,28 @@
+name: Cargo Build & Test
+
+on:
+  workflow_dispatch:
+  push:
+      branches:
+        - dev
+
+env: 
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build_and_test:
+    name: Latest
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.message, 'run tests')
+    strategy:
+      matrix:
+        toolchain:
+          - stable
+    steps:
+      - uses: actions/checkout@v4
+        with:
+            persist-credentials: false
+      - run: rustup update ${{ matrix.toolchain }} && rustup default ${{ matrix.toolchain }}
+      - run: cargo build --verbose
+      - run: cargo test --verbose
+  
