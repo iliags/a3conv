@@ -6,7 +6,7 @@ use std::{
     env,
     fs::{self},
     path::{Path, PathBuf},
-    result,
+    result, vec,
 };
 
 #[derive(Parser, Debug)]
@@ -20,8 +20,11 @@ struct Args {
     output: Option<String>,
 
     /// Output image format, default is PNG
-    #[arg(value_enum)]
+    #[arg(value_enum, default_value = "png")]
     image_format: Option<OutputImageFormat>,
+
+    #[arg(short, long, default_value = "false")]
+    convert_files: bool,
 }
 
 #[derive(Debug, clap::Args)]
@@ -40,11 +43,6 @@ enum ExtractMode {
     GameDir,
     Archive,
 }
-
-const DEBUG_OUTPUT: &str = "target/debug/apathy";
-const DEBUG_FILE: &str = "target/debug/apathy.wrs";
-const DEBUG_MAP: &str = "target/debug/apathy.WMP";
-const DEBUG_IMG: &str = "target/debug/apathy/palblack.pcx";
 
 fn main() {
     let args = Args::parse();
@@ -68,13 +66,6 @@ fn main() {
         }
     };
 
-    println!("Output: {:?}", output);
-
-    // Create the output directory if it doesn't exist
-    if !Path::new(&output).exists() {
-        std::fs::create_dir(&output).unwrap();
-    }
-
     let archives: Vec<String> = match extract_mode {
         ExtractMode::GameDir => {
             // Scan current directory for archives
@@ -84,7 +75,7 @@ fn main() {
                 .filter_map(Result::ok)
                 .filter(|d| {
                     if let Some(e) = d.path().extension() {
-                        e == "wrs"
+                        e == "wrs" || e == "WRS"
                     } else {
                         false
                     }
@@ -98,56 +89,141 @@ fn main() {
         }
     };
 
+    println!("Archives: {:?}", archives);
+
     for archive in archives {
         let archive_name = archive.split('.').next().unwrap();
         let output_directory = format!("{}/{}", output, archive_name);
         let original_directory = format!("{}/original", output_directory);
-        //println!("Extracting archive: {}", archive_name);
+        println!("Extracting archive: {}", archive_name);
 
         // Create the output directory if it doesn't exist
-        if !Path::new(&output_directory).exists() {
-            std::fs::create_dir(&output_directory).unwrap();
-        }
-
         if !Path::new(&original_directory).exists() {
-            std::fs::create_dir(&original_directory).unwrap();
+            std::fs::create_dir_all(&original_directory).unwrap();
         }
 
         // Extract the archive
         match a3conv::wrs::extract_archive(&archive, &original_directory) {
-            Ok(_) => println!("Extracted archive: {}", archive),
+            Ok(_) => (),
             Err(e) => eprintln!("Error: {}", e),
         }
 
         // Convert the extracted files
-    }
 
-    /*
-    println!("Extracting archive: {}", archive);
+        if args.convert_files {
+            println!("Converting files...");
 
-    // Extract the archive
-    match a3conv::wrs::extract_archive(&archive, &output) {
-        Ok(_) => println!("Extraction complete!"),
-        Err(e) => eprintln!("Error: {}", e),
-    }
+            let converted_directory = format!("{}/converted", output_directory);
+            let image_dir = format!("{}/images", converted_directory);
+            let sound_dir = format!("{}/sound", converted_directory);
+            let script_dir = format!("{}/script", converted_directory);
 
-    let mut map = a3conv::map::Map::default();
+            let vec = vec![&converted_directory, &image_dir, &sound_dir, &script_dir];
 
-    let path = PathBuf::from(DEBUG_MAP);
-    match map.parse_wmp(&path) {
-        Ok(_) => {
-            let output_file = format!("{}/{}.txt", output, map.name());
-            println!("Writing to file: {:?}", output_file);
-            fs::write(output_file, map.create_vertex_csv()).unwrap();
+            for dir in vec {
+                if !Path::new(&dir).exists() {
+                    std::fs::create_dir_all(&dir).unwrap();
+                }
+            }
+
+            let files = fs::read_dir(&original_directory).unwrap();
+            // Images
+            files
+                .filter_map(Result::ok)
+                .for_each(|f| match f.path().extension() {
+                    Some(e) => {
+                        let file = f.file_name().to_str().unwrap().to_string();
+                        let file = format!("{}/{}", original_directory, file);
+
+                        match e.to_str().unwrap() {
+                            "pcx" => {
+                                let image_format =
+                                    args.image_format.unwrap_or(OutputImageFormat::Png);
+
+                                match a3conv::image::convert_image(
+                                    &PathBuf::from(file),
+                                    &PathBuf::from(&image_dir),
+                                    image_format,
+                                ) {
+                                    Ok(_) => (),
+                                    Err(e) => eprintln!("Image Error: {}", e),
+                                }
+                            }
+                            "wav" => {
+                                let target_file = format!(
+                                    "{}/{}",
+                                    sound_dir,
+                                    f.file_name().to_str().unwrap().to_string()
+                                );
+
+                                let mut source = match std::fs::File::open(&file) {
+                                    Ok(f) => f,
+                                    Err(e) => {
+                                        eprintln!("Error: {}", e);
+                                        return;
+                                    }
+                                };
+                                let mut target = match std::fs::File::create(&target_file) {
+                                    Ok(f) => f,
+                                    Err(e) => {
+                                        eprintln!("Error: {}", e);
+                                        return;
+                                    }
+                                };
+                                match std::io::copy(&mut source, &mut target) {
+                                    Ok(_) => (),
+                                    Err(e) => eprintln!("Error: {}", e),
+                                }
+                            }
+                            "wdl" | "wmp" => {
+                                // TODO: Convert WDL and WMP files, for now just copy them
+
+                                let target_file = format!(
+                                    "{}/{}",
+                                    script_dir,
+                                    f.file_name().to_str().unwrap().to_string()
+                                );
+
+                                let mut source = match std::fs::File::open(&file) {
+                                    Ok(f) => f,
+                                    Err(e) => {
+                                        eprintln!("Error: {}", e);
+                                        return;
+                                    }
+                                };
+                                let mut target = match std::fs::File::create(&target_file) {
+                                    Ok(f) => f,
+                                    Err(e) => {
+                                        eprintln!("Error: {}", e);
+                                        return;
+                                    }
+                                };
+                                match std::io::copy(&mut source, &mut target) {
+                                    Ok(_) => (),
+                                    Err(e) => eprintln!("Error: {}", e),
+                                }
+
+                                /*
+                                let mut map = a3conv::map::Map::default();
+
+                                let path = PathBuf::from(DEBUG_MAP);
+                                match map.parse_wmp(&path) {
+                                    Ok(_) => {
+                                        let output_file = format!("{}/{}.txt", output, map.name());
+                                        println!("Writing to file: {:?}", output_file);
+                                        fs::write(output_file, map.create_vertex_csv()).unwrap();
+                                    }
+                                    Err(e) => eprintln!("Error: {}", e),
+                                }
+                                */
+                            }
+                            _ => {}
+                        }
+                    }
+                    None => {}
+                });
         }
-        Err(e) => eprintln!("Error: {}", e),
     }
 
-    match a3conv::image::convert_image(&PathBuf::from(DEBUG_IMG)) {
-        Ok(_) => (),
-        Err(e) => eprintln!("Error: {}", e),
-    }
-     */
-
-    //println!("Conversion complete!");
+    println!("Conversion complete!");
 }

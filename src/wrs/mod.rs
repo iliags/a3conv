@@ -28,9 +28,9 @@ pub fn extract_archive(input_path: &String, output_path: &String) -> Result<(), 
         match reader.read_exact(&mut name_bytes) {
             Ok(_) => (),
             Err(e) => {
-                eprintln!("Error reading file name: {}", e);
-                println!("Offset: {:?}", offset);
-                println!("Archive size: {:?}", asize);
+                //eprintln!("Error reading file name: {}", e);
+                //println!("Offset: {:?}", offset);
+                //println!("Archive size: {:?}", asize);
                 break;
             }
         }
@@ -76,7 +76,7 @@ pub fn extract_archive(input_path: &String, output_path: &String) -> Result<(), 
         }
     }
 
-    println!("Extracted {} files", file_count);
+    println!("Done, extracted {} files", file_count);
 
     Ok(())
 }

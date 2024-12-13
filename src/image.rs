@@ -27,7 +27,11 @@ impl OutputImageFormat {
 }
 
 // TODO: Choose between png and jpeg output
-pub fn convert_image(file: &PathBuf, output_format: OutputImageFormat) -> Result<(), &'static str> {
+pub fn convert_image(
+    file: &PathBuf,
+    output_dir: &PathBuf,
+    output_format: OutputImageFormat,
+) -> Result<(), &'static str> {
     let name = file
         .file_stem()
         .unwrap_or(OsStr::new("Unknown"))
@@ -38,7 +42,7 @@ pub fn convert_image(file: &PathBuf, output_format: OutputImageFormat) -> Result
 
     let out_path = format!(
         "{}/{}.{}",
-        file.parent().unwrap().to_str().unwrap(),
+        output_dir.to_str().unwrap(),
         name,
         output_format.to_extension()
     );
