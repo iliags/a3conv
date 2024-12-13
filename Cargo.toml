@@ -1,6 +1,6 @@
 [package]
 name = "a3conv"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2021"
 authors = ["James Lennon"]
 description = "A tool to convert A3 files to a more usable format."
