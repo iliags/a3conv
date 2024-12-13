@@ -3,40 +3,7 @@
 /// The LZSS implementation used for WRS files isn't the same as the one
 /// found in the rust LZSS crate.
 
-fn lzss_set_window(window: &mut Vec<u8>, window_size: usize, init_chr: i32) {
-    match init_chr {
-        -1 => {
-            // Tales of Vesperia (thanks to delguoqing)
-            window.fill(0);
-            let mut i = 0;
-            loop {
-                let n = (i * 8) + 6;
-                if n >= window_size {
-                    break;
-                }
-                window[n] = i as u8;
-                i += 1;
-            }
-        }
-        -2 => {
-            // invented
-            for i in 0..window_size {
-                window[i] = i as u8;
-            }
-        }
-        -3 => {
-            // invented
-            for i in (0..window_size).rev() {
-                window[i] = i as u8;
-            }
-        }
-        _ => {
-            window.fill(init_chr as u8);
-        }
-    }
-}
-
-// Note: The first few iterations will be a direct translation of the C code, it will be refactored into idiomatic Rust later.
+// Note: The first few iterations are a direct translation of the C code, it will be refactored into idiomatic Rust later.
 pub fn unlzss(src_data: &[u8], dest_data: &mut [u8]) -> Result<(), &'static str> {
     let ei = 12;
     let ej = 4;
@@ -118,4 +85,36 @@ pub fn unlzss(src_data: &[u8], dest_data: &mut [u8]) -> Result<(), &'static str>
     }
 
     Ok(())
+}
+
+fn lzss_set_window(window: &mut Vec<u8>, window_size: usize, init_chr: i32) {
+    match init_chr {
+        -1 => {
+            window.fill(0);
+            let mut i = 0;
+            loop {
+                let n = (i * 8) + 6;
+                if n >= window_size {
+                    break;
+                }
+                window[n] = i as u8;
+                i += 1;
+            }
+        }
+        -2 => {
+            // invented
+            for i in 0..window_size {
+                window[i] = i as u8;
+            }
+        }
+        -3 => {
+            // invented
+            for i in (0..window_size).rev() {
+                window[i] = i as u8;
+            }
+        }
+        _ => {
+            window.fill(init_chr as u8);
+        }
+    }
 }
