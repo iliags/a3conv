@@ -12,7 +12,6 @@ pub fn unlzss(src_data: &[u8], dest_data: &mut [u8]) -> Result<(), &'static str>
     let mut f = 1 << ej;
 
     let mut slide_window = vec![init_char; n + f];
-    //slide_window.fill(init_char as u8);
 
     let mut r = (n - f) - rless;
     n -= 1;
@@ -87,7 +86,7 @@ pub fn unlzss(src_data: &[u8], dest_data: &mut [u8]) -> Result<(), &'static str>
 mod tests {
     use super::*;
 
-    // Known compressed and decompressed data from an Acknex WRS archive
+    // Known good compressed and decompressed data from an Acknex WRS archive
     const COMPRESSED_DATA: &'static [u8] = &[
         223, 10, 5, 1, 8, 0, 242, 240, 35, 0, 63, 31, 0, 44, 1, 44, 1, 242, 241, 1, 15, 252, 19,
         15, 29, 6, 1, 36, 0, 1, 0, 128, 99, 2, 224, 253, 255, 72, 15, 90, 15, 0, 228, 109, 15, 24,
