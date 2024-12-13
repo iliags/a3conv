@@ -6,14 +6,13 @@ pub fn unlzss(src_data: &[u8], dest_data: &mut [u8]) -> Result<(), &'static str>
     let ej = 4;
     let p = 2;
     let rless = p;
-    let init_char = 0x20;
+    let init_char: u8 = 0x20;
 
     let mut n = 1 << ei;
     let mut f = 1 << ej;
 
-    let mut slide_window = vec![0u8; n + f];
-    let slide_window_size = n;
-    lzss_set_window(&mut slide_window, slide_window_size, init_char);
+    let mut slide_window = vec![init_char; n + f];
+    //slide_window.fill(init_char as u8);
 
     let mut r = (n - f) - rless;
     n -= 1;
@@ -82,38 +81,6 @@ pub fn unlzss(src_data: &[u8], dest_data: &mut [u8]) -> Result<(), &'static str>
     }
 
     Ok(())
-}
-
-fn lzss_set_window(window: &mut Vec<u8>, window_size: usize, init_chr: i32) {
-    match init_chr {
-        -1 => {
-            window.fill(0);
-            let mut i = 0;
-            loop {
-                let n = (i * 8) + 6;
-                if n >= window_size {
-                    break;
-                }
-                window[n] = i as u8;
-                i += 1;
-            }
-        }
-        -2 => {
-            // invented
-            for i in 0..window_size {
-                window[i] = i as u8;
-            }
-        }
-        -3 => {
-            // invented
-            for i in (0..window_size).rev() {
-                window[i] = i as u8;
-            }
-        }
-        _ => {
-            window.fill(init_chr as u8);
-        }
-    }
 }
 
 #[cfg(test)]
