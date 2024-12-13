@@ -1,21 +1,44 @@
 #![allow(dead_code, unused_imports)]
-use clap::Parser;
+use a3conv::image::OutputImageFormat;
+use clap::{Parser, ValueEnum};
+use core::arch;
 use std::{
+    env,
     fs::{self},
     path::{Path, PathBuf},
+    result,
 };
 
-// TODO: Subcommands for each step of the conversion process
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
-    /// Name of the archive to extract
-    #[arg(short, long)]
-    archive: Option<String>,
+    #[clap(flatten)]
+    input: InputGroup,
 
-    /// Name of the archive to extract
+    /// Output directory for the extracted files
     #[arg(short, long)]
     output: Option<String>,
+
+    /// Output image format, default is PNG
+    #[arg(value_enum)]
+    image_format: Option<OutputImageFormat>,
+}
+
+#[derive(Debug, clap::Args)]
+#[group(required = true, multiple = false)]
+pub struct InputGroup {
+    /// Game directory to extract files from
+    #[clap(short, long)]
+    game_dir: Option<String>,
+
+    /// The archive to extract
+    #[clap(short, long)]
+    archive: Option<String>,
+}
+
+enum ExtractMode {
+    GameDir,
+    Archive,
 }
 
 const DEBUG_OUTPUT: &str = "target/debug/apathy";
@@ -26,12 +49,72 @@ const DEBUG_IMG: &str = "target/debug/apathy/palblack.pcx";
 fn main() {
     let args = Args::parse();
 
-    let _archive = args.archive.unwrap_or(DEBUG_FILE.to_string());
-    let output = args.output.unwrap_or(DEBUG_OUTPUT.to_string());
+    let extract_mode = match args.input.game_dir.is_some() {
+        true => ExtractMode::GameDir,
+        false => ExtractMode::Archive,
+    };
+
+    let game_dir = PathBuf::from(args.input.game_dir.unwrap_or("".to_string()));
+    let archive = PathBuf::from(args.input.archive.unwrap_or("".to_string()));
+
+    let output = match args.output {
+        Some(output) => output,
+        None => {
+            if game_dir.exists() {
+                format! {"{}/output", game_dir.to_str().unwrap()}
+            } else {
+                format! {"{}/output", archive.parent().unwrap().to_str().unwrap()}
+            }
+        }
+    };
+
+    println!("Output: {:?}", output);
 
     // Create the output directory if it doesn't exist
     if !Path::new(&output).exists() {
         std::fs::create_dir(&output).unwrap();
+    }
+
+    let archives: Vec<String> = match extract_mode {
+        ExtractMode::GameDir => {
+            // Scan current directory for archives
+            let mut results = Vec::new();
+            let files = fs::read_dir(&game_dir).unwrap();
+            files
+                .filter_map(Result::ok)
+                .filter(|d| {
+                    if let Some(e) = d.path().extension() {
+                        e == "wrs"
+                    } else {
+                        false
+                    }
+                })
+                .for_each(|f| results.push(f.file_name().to_str().unwrap().to_string()));
+
+            results
+        }
+        ExtractMode::Archive => {
+            vec![archive.file_name().unwrap().to_str().unwrap().to_string()]
+        }
+    };
+
+    for archive in archives {
+        let archive_name = archive.split('.').next().unwrap();
+        let output_directory = format!("{}/{}", output, archive_name);
+        //println!("Extracting archive: {}", archive_name);
+
+        // Create the output directory if it doesn't exist
+        if !Path::new(&output_directory).exists() {
+            std::fs::create_dir(&output_directory).unwrap();
+        }
+
+        // Extract the archive
+        match a3conv::wrs::extract_archive(&archive, &output_directory) {
+            Ok(_) => println!("Extracted archive: {}", archive),
+            Err(e) => eprintln!("Error: {}", e),
+        }
+
+        // Convert the extracted files
     }
 
     /*
