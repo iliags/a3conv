@@ -146,7 +146,6 @@ impl Map {
                     let x: f32 = parts[1].parse().unwrap_or_default();
                     let y: f32 = parts[2].parse().unwrap_or_default();
                     let z: f32 = parts[3].parse().unwrap_or_default();
-                    //vertices.push(Vertex { x, y, z });
                     self.vertices.push(Vector3::new(x, y, z));
                 }
                 MapDataType::Region => {

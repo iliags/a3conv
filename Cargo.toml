@@ -38,12 +38,12 @@ nalgebra = { workspace = true }
 
 [[bin]]
 name = "a3conv_cli"
-path = "src/main.rs"
+path = "src/bin/cli.rs"
 
 # TODO: Add a UI
 #[[bin]]
 #name = "a3conv_ui"
-#path = "src/main.rs"
+#path = "src/bin/ui.rs"
 
 [profile.release]
 opt-level = 3
