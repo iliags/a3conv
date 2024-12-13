@@ -3,6 +3,7 @@ name = "conv_map"
 version = "0.1.0"
 edition = "2021"
 description = "A library for converting A3 maps to a more usable format."
+publish = false
 
 [dependencies]
 nalgebra = "0.33"

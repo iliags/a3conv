@@ -2,6 +2,8 @@
 name = "conv_codec"
 version = "0.1.0"
 edition = "2021"
+description = "Decompression algorithms for Acknex 3 archives"
+publish = false
 
 [dependencies]
 
