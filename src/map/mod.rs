@@ -13,6 +13,7 @@ type Vertex = Vector3<f32>;
 pub mod object;
 pub mod region;
 pub mod wall;
+pub mod wdl;
 
 // Note about indexing: the WMP files use direct array indexing when referring to vertices, regions, and walls.
 
