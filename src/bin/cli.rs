@@ -136,7 +136,7 @@ fn main() {
                         let file = format!("{}/{}", original_directory, file);
 
                         match e.to_str().unwrap() {
-                            "pcx" => {
+                            "pcx" | "PCX" => {
                                 let image_format =
                                     args.image_format.unwrap_or(OutputImageFormat::Png);
 
@@ -149,7 +149,7 @@ fn main() {
                                     Err(e) => eprintln!("Image Error: {}", e),
                                 }
                             }
-                            "wav" => {
+                            "wav" | "WAV" => {
                                 let target_file = format!(
                                     "{}/{}",
                                     sound_dir,
@@ -175,7 +175,7 @@ fn main() {
                                     Err(e) => eprintln!("Error: {}", e),
                                 }
                             }
-                            "wdl" | "wmp" => {
+                            "wdl" | "wmp" | "WDL" | "WMP" => {
                                 // TODO: Convert WDL and WMP files, for now just copy them
 
                                 let target_file = format!(
