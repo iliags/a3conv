@@ -13,6 +13,7 @@ pub struct Map {
     vertices: Vec<Vertex>,
     regions: Vec<Region>,
     walls: Vec<Wall>,
+    objects: Vec<Object>,
 }
 
 #[derive(Debug, Default, Clone)]
@@ -50,12 +51,40 @@ pub struct Wall {
     ceiling_texture: String,
 }
 
-#[derive(Debug)]
-enum LineType {
+#[derive(Debug, Default, Clone)]
+pub enum ObjectType {
+    #[default]
+    Actor,
+    PlayerStart,
+    Thing,
+}
+
+impl From<&str> for ObjectType {
+    fn from(s: &str) -> Self {
+        match s {
+            "PLAYER_START" => ObjectType::PlayerStart,
+            "THING" => ObjectType::Thing,
+            _ => ObjectType::Actor,
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct Object {
+    object_type: ObjectType,
+    name: String,
+    position: Vertex,
+    angle: f32,
+    region: usize,
+}
+
+#[derive(Debug, Clone)]
+enum MapDataType {
     Vertex,
     Region,
     Wall,
     Comment,
+    Object,
 }
 
 impl Map {
@@ -87,9 +116,9 @@ impl Map {
         // The file should be safe to unwrap as errors are handled above
         let reader = BufReader::new(file.unwrap());
 
-        let mut vertices = Vec::new();
-        let mut regions = Vec::new();
-        let mut walls = Vec::new();
+        self.vertices = Vec::new();
+        self.regions = Vec::new();
+        self.walls = Vec::new();
 
         for line in reader.lines() {
             let line = line?;
@@ -104,33 +133,34 @@ impl Map {
             let parts: Vec<&str> = line.split_whitespace().collect();
 
             let line_type = match parts[0] {
-                "VERTEX" => LineType::Vertex,
-                "REGION" => LineType::Region,
-                "WALL" => LineType::Wall,
-                _ => LineType::Comment,
+                "VERTEX" => MapDataType::Vertex,
+                "REGION" => MapDataType::Region,
+                "WALL" => MapDataType::Wall,
+                "PLAYER_START" | "THING" | "ACTOR" => MapDataType::Object,
+                _ => MapDataType::Comment,
             };
 
             match line_type {
-                LineType::Vertex => {
+                MapDataType::Vertex => {
                     // Parse vertex data
                     let x: f32 = parts[1].parse().unwrap_or_default();
                     let y: f32 = parts[2].parse().unwrap_or_default();
                     let z: f32 = parts[3].parse().unwrap_or_default();
                     //vertices.push(Vertex { x, y, z });
-                    vertices.push(Vector3::new(x, y, z));
+                    self.vertices.push(Vector3::new(x, y, z));
                 }
-                LineType::Region => {
+                MapDataType::Region => {
                     // Parse region data
                     let name = parts[1].to_string();
                     let floor_hgt: f32 = parts[2].parse().unwrap_or_default();
                     let ceil_hgt: f32 = parts[3].parse().unwrap_or_default();
-                    regions.push(Region {
+                    self.regions.push(Region {
                         name,
                         floor_height: floor_hgt,
                         ceiling_height: ceil_hgt,
                     });
                 }
-                LineType::Wall => {
+                MapDataType::Wall => {
                     // Parse wall data
                     let name = parts[1].to_string();
                     let vertex1_index: usize = parts[2].parse().unwrap_or_default();
@@ -139,7 +169,7 @@ impl Map {
                     let region2_index: usize = parts[5].parse().unwrap_or_default();
                     let offset_x: f32 = parts[6].parse().unwrap_or_default();
                     let offset_y: f32 = parts[7].parse().unwrap_or_default();
-                    walls.push(Wall {
+                    self.walls.push(Wall {
                         name,
                         vertex1_index,
                         vertex2_index,
@@ -150,13 +180,26 @@ impl Map {
                         ..Default::default()
                     });
                 }
+                MapDataType::Object => {
+                    let offset: usize = match parts[0] {
+                        "PLAYER_START" => 1,
+                        _ => 0,
+                    };
+                    self.objects.push(Object {
+                        object_type: ObjectType::from(parts[0]),
+                        name: parts[1 - offset].to_string(),
+                        position: Vector3::new(
+                            parts[2 - offset].parse().unwrap_or_default(),
+                            parts[3 - offset].parse().unwrap_or_default(),
+                            0.0,
+                        ),
+                        angle: parts[4 - offset].parse().unwrap_or_default(),
+                        region: parts[5 - offset].parse().unwrap_or_default(),
+                    });
+                }
                 _ => {}
             }
         }
-
-        self.vertices = vertices;
-        self.regions = regions;
-        self.walls = walls;
 
         Ok(())
     }
