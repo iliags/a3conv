@@ -5,5 +5,4 @@ edition = "2021"
 description = "A library to extract files from the A3 archive format."
 
 [dependencies]
-lzss = "0.9"
 conv_codec = { workspace = true }

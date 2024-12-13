@@ -1,7 +1,5 @@
 /// LZSS algorithm based on QuickBMS LZSS implementation
 ///
-/// The LZSS implementation used for WRS files isn't the same as the one
-/// found in the rust LZSS crate.
 
 // Note: The first few iterations are a direct translation of the C code, it will be refactored into idiomatic Rust later.
 pub fn unlzss(src_data: &[u8], dest_data: &mut [u8]) -> Result<(), &'static str> {
@@ -9,7 +7,7 @@ pub fn unlzss(src_data: &[u8], dest_data: &mut [u8]) -> Result<(), &'static str>
     let ej = 4;
     let p = 2;
     let rless = p;
-    let init_char = 0x20; // The C code had ' ' as the default init_char
+    let init_char = 0x20;
 
     let mut n = 1 << ei;
     let mut f = 1 << ej;
