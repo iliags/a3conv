@@ -101,6 +101,7 @@ fn main() {
     for archive in archives {
         let archive_name = archive.split('.').next().unwrap();
         let output_directory = format!("{}/{}", output, archive_name);
+        let original_directory = format!("{}/original", output_directory);
         //println!("Extracting archive: {}", archive_name);
 
         // Create the output directory if it doesn't exist
@@ -108,8 +109,12 @@ fn main() {
             std::fs::create_dir(&output_directory).unwrap();
         }
 
+        if !Path::new(&original_directory).exists() {
+            std::fs::create_dir(&original_directory).unwrap();
+        }
+
         // Extract the archive
-        match a3conv::wrs::extract_archive(&archive, &output_directory) {
+        match a3conv::wrs::extract_archive(&archive, &original_directory) {
             Ok(_) => println!("Extracted archive: {}", archive),
             Err(e) => eprintln!("Error: {}", e),
         }
