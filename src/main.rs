@@ -18,10 +18,10 @@ struct Args {
     output: Option<String>,
 }
 
-const DEBUG_FILE: &str = "target/debug/apathy.wrs";
 const DEBUG_OUTPUT: &str = "target/debug/apathy";
-
+const DEBUG_FILE: &str = "target/debug/apathy.wrs";
 const DEBUG_MAP: &str = "target/debug/apathy.WMP";
+const DEBUG_IMG: &str = "target/debug/apathy/palblack.pcx";
 
 fn main() {
     let args = Args::parse();
@@ -56,6 +56,11 @@ fn main() {
         Err(e) => eprintln!("Error: {}", e),
     }
     */
+
+    match a3conv::image::convert_image(&PathBuf::from(DEBUG_IMG)) {
+        Ok(_) => (),
+        Err(e) => eprintln!("Error: {}", e),
+    }
 
     //println!("Conversion complete!");
 }

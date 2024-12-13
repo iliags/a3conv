@@ -12,6 +12,10 @@ This is extremely WIP, it won't work under most circumstances for the time being
 
 The map files contain vertices, regions, walls, and objects. They rely on wdl scripts for logic, special effects, geometry tweaking, and other tasks which increase the complexity.
 
+## Customized Crates
+
+Contains a source version of [image](https://crates.io/crates/image) because the PCX image format is temporarily disabled in 0.25.5.
+
 ## Related Projects
 
 - [A3Tools](https://github.com/firoball/A3Tools)

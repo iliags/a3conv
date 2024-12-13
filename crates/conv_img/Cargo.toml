@@ -1,8 +1,0 @@
-[package]
-name = "conv_img"
-version = "0.1.0"
-edition = "2021"
-description = "A library for converting .pcx images to a modern format."
-publish = false
-
-[dependencies]
