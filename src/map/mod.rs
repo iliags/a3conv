@@ -7,6 +7,8 @@ use std::path::PathBuf;
 
 type Vertex = Vector3<f32>;
 
+// Note about indexing: the WMP files use direct array indexing when referring to vertices, regions, and walls.
+
 #[derive(Debug, Default, Clone)]
 pub struct Map {
     name: String,

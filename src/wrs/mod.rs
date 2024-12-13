@@ -76,7 +76,7 @@ pub fn extract_archive(input_path: &String, output_path: &String) -> Result<(), 
         }
     }
 
-    println!("Done, extracted {} files", file_count);
+    println!("Extracted {} files", file_count);
 
     Ok(())
 }
