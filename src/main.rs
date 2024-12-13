@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_imports)]
 use clap::Parser;
 use std::{
     fs::{self},
@@ -25,7 +26,7 @@ const DEBUG_MAP: &str = "target/debug/apathy.WMP";
 fn main() {
     let args = Args::parse();
 
-    let _archive = args.archive.unwrap_or(DEBUG_FILE.to_string());
+    let archive = args.archive.unwrap_or(DEBUG_FILE.to_string());
     let output = args.output.unwrap_or(DEBUG_OUTPUT.to_string());
 
     // Create the output directory if it doesn't exist
@@ -33,7 +34,6 @@ fn main() {
         std::fs::create_dir(&output).unwrap();
     }
 
-    /*
     println!("Extracting archive: {}", archive);
 
     // Extract the archive
@@ -41,10 +41,8 @@ fn main() {
         Ok(_) => println!("Extraction complete!"),
         Err(e) => eprintln!("Error: {}", e),
     }
-     */
 
-    //println!("Conversion complete!");
-
+    /*
     let mut map = conv_map::Map::default();
 
     let path = PathBuf::from(DEBUG_MAP);
@@ -58,4 +56,7 @@ fn main() {
         }
         Err(e) => eprintln!("Error: {}", e),
     }
+    */
+
+    //println!("Conversion complete!");
 }

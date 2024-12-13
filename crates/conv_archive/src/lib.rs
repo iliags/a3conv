@@ -1,27 +1,11 @@
 #![allow(dead_code, unused_imports, unused_variables)]
-use lzss::{Lzss, SliceReader, SliceWriter};
+//use lzss::{Lzss, SliceReader, SliceWriter};
 use std::{
     fs::File,
     io::{self, BufReader, Read, Seek, Write},
 };
 
-/* QuickBMS script
-comtype lzss
-endian big
-get asize asize
-
-do
-
-getdstring name 13
-get zsize long
-get size long
-savepos offset
-clog name offset zsize size
-math offset += zsize
-goto offset
-
-while offset < asize
-*/
+use conv_codec::lzss::unlzss;
 
 // TODO: Add a builder pattern implementation which defaults to the QuickBMS script
 // TODO: Unify error handling
@@ -66,31 +50,24 @@ pub fn extract_archive(input_path: &String, output_path: &String) -> Result<(), 
 
         /*******************************************************************/
 
-        //const EI: usize = 13;
-        //type A3Lzss = Lzss<EI, 4, 0x10, { 1 << EI }, { 2 << EI }>;
-
-        //let mut dummy_data = vec![0u8; 1];
-        //reader.read_exact(&mut dummy_data)?;
-
-        const EI: usize = 12;
-        const EJ: usize = 4;
-        type A3Lzss = Lzss<EI, EJ, 0x20, { 1 << EI }, { 2 << EI }>;
-
         let mut compressed_data = vec![0u8; zsize];
         reader.read_exact(&mut compressed_data)?;
+        //compressed_data.reverse(); // Reverse the bytes to little-endian
 
         println!("Compressed data: {:X?}", &compressed_data[..16]); // Print first 16 bytes of compressed data
 
         let mut decompressed_data = vec![0u8; size];
-        match A3Lzss::decompress_stack(
-            SliceReader::new(&compressed_data),
-            SliceWriter::new(&mut decompressed_data),
-        ) {
+
+        match unlzss(&compressed_data, &mut decompressed_data) {
             Ok(_) => (),
             Err(e) => eprintln!("Extraction Error: {}", e),
         }
 
-        println!("Decompressed data: {:X?}", &decompressed_data[..16]); // Print first 16 bytes of decompressed data
+        //println!("Decompressed data: {:X?}", &decompressed_data[..16]); // Print first 16 bytes of decompressed data
+        //println!("Target data: [A, 5, 1, 8, 0, 0, 0, 0, 23, 0, 1F, 0, 2C, 1, 2C, 1]");
+
+        // Print second 16 bytes of decompressed data
+        println!("Decompressed data: {:X?}", &decompressed_data[16..32]);
 
         let mut output_file = File::create(output_file)?;
         println!("Writing to file: {:?}", output_file);
@@ -113,34 +90,6 @@ pub fn extract_archive(input_path: &String, output_path: &String) -> Result<(), 
 }
 
 /*
-fn extract_file(
-    reader: &mut BufReader<File>,
-    output_file: &str,
-    compressed_size: usize,
-    uncompressed_size: usize,
-) -> std::io::Result<()> {
-    const EI: usize = 13;
-    type A3Lzss = Lzss<EI, 4, 0x10, { 1 << EI }, { 2 << EI }>;
-
-    let mut compressed_data = vec![0u8; compressed_size];
-    reader.read_exact(&mut compressed_data)?;
-
-    let mut decompressed_data = vec![0u8; uncompressed_size];
-    match A3Lzss::decompress_stack(
-        SliceReader::new(&compressed_data),
-        SliceWriter::new(&mut decompressed_data),
-    ) {
-        Ok(_) => (),
-        Err(e) => eprintln!("Extraction Error: {}", e),
-    }
-
-    let mut output_file = File::create(output_file)?;
-    println!("Writing to file: {:?}", output_file);
-    output_file.write_all(&decompressed_data)?;
-
-    Ok(())
-}
-
 #[cfg(test)]
 mod tests {
     //use super::*;
