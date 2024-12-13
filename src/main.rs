@@ -38,13 +38,12 @@ fn main() {
     println!("Extracting archive: {}", archive);
 
     // Extract the archive
-    match conv_archive::extract_archive(&archive, &output) {
+    match a3conv::wrs::extract_archive(&archive, &output) {
         Ok(_) => println!("Extraction complete!"),
         Err(e) => eprintln!("Error: {}", e),
     }
 
-
-    let mut map = conv_map::Map::default();
+    let mut map = a3conv::map::Map::default();
 
     let path = PathBuf::from(DEBUG_MAP);
     match map.parse_wmp(&path) {
@@ -55,12 +54,12 @@ fn main() {
         }
         Err(e) => eprintln!("Error: {}", e),
     }
-    */
 
     match a3conv::image::convert_image(&PathBuf::from(DEBUG_IMG)) {
         Ok(_) => (),
         Err(e) => eprintln!("Error: {}", e),
     }
+     */
 
     //println!("Conversion complete!");
 }

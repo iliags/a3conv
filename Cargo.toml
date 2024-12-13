@@ -21,8 +21,6 @@ unsafe_op_in_unsafe_fn = "warn"
 #unsafe_code = "deny"
 
 [workspace.dependencies]
-conv_archive = { path = "crates/conv_archive" }
-conv_map = { path = "crates/conv_map" }
 image = { path = "crates/image_rs/", default-features = false, features = [
     "pcx",
     "png",
@@ -30,13 +28,13 @@ image = { path = "crates/image_rs/", default-features = false, features = [
 ] }
 
 clap = { version = "4.5", features = ["derive"] }
+nalgebra = "0.33"
 
 [dependencies]
-conv_archive = { workspace = true }
-conv_map = { workspace = true }
 image = { workspace = true }
 
 clap = { workspace = true }
+nalgebra = { workspace = true }
 
 [[bin]]
 name = "a3conv_cli"

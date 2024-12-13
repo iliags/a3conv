@@ -7,9 +7,8 @@ name = "a3conv"
 version = "0.1.0"
 dependencies = [
  "clap",
- "conv_archive",
- "conv_map",
  "image",
+ "nalgebra",
 ]
 
 [[package]]
@@ -366,17 +365,6 @@ name = "colorchoice"
 version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5b63caa9aa9397e2d9480a9b13673856c78d8ac123288526c37d7839f2a86990"
-
-[[package]]
-name = "conv_archive"
-version = "0.1.0"
-
-[[package]]
-name = "conv_map"
-version = "0.1.0"
-dependencies = [
- "nalgebra",
-]
 
 [[package]]
 name = "crc32fast"
