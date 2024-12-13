@@ -8,4 +8,10 @@ A set of extraction and conversion tools for Acknex 3 games. The goal is to conv
 - [ ] Convert *.pcx images into other formats
 - [ ] Convert maps (*.wmp) into other formats
 
-The map files contain vertices, regions, walls, and objects. They rely on wdl scripts for logic, special effects, geometry tweaking, and other tasks which increases the complexity.
+The map files contain vertices, regions, walls, and objects. They rely on wdl scripts for logic, special effects, geometry tweaking, and other tasks which increase the complexity.
+
+## Related Projects
+
+- [A3Tools](https://github.com/firoball/A3Tools)
+- [WMPio](https://github.com/firoball/WMPio)
+- [uWed](https://github.com/firoball/uWED)
