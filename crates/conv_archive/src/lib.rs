@@ -4,7 +4,8 @@ use std::{
     io::{self, BufReader, Read, Seek, Write},
 };
 
-use conv_codec::lzss::unlzss;
+pub mod lzss;
+use lzss::unlzss;
 
 // TODO: Add a builder pattern implementation which defaults to the QuickBMS script
 // TODO: Unify error handling
