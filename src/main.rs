@@ -29,12 +29,12 @@ fn main() {
     let _archive = args.archive.unwrap_or(DEBUG_FILE.to_string());
     let output = args.output.unwrap_or(DEBUG_OUTPUT.to_string());
 
-    /*
     // Create the output directory if it doesn't exist
     if !Path::new(&output).exists() {
         std::fs::create_dir(&output).unwrap();
     }
 
+    /*
     println!("Extracting archive: {}", archive);
 
     // Extract the archive
@@ -42,7 +42,7 @@ fn main() {
         Ok(_) => println!("Extraction complete!"),
         Err(e) => eprintln!("Error: {}", e),
     }
-     */
+
 
     let mut map = conv_map::Map::default();
 
@@ -55,6 +55,7 @@ fn main() {
         }
         Err(e) => eprintln!("Error: {}", e),
     }
+    */
 
     //println!("Conversion complete!");
 }
