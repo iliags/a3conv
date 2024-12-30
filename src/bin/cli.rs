@@ -203,19 +203,24 @@ fn main() {
                                     Err(e) => eprintln!("Error: {}", e),
                                 }
 
-                                /*
-                                let mut map = a3conv::map::Map::default();
+                                match e.to_str().unwrap() {
+                                    "wmp" | "WMP" => {
+                                        let mut map = a3conv::map::Map::default();
 
-                                let path = PathBuf::from(DEBUG_MAP);
-                                match map.parse_wmp(&path) {
-                                    Ok(_) => {
-                                        let output_file = format!("{}/{}.txt", output, map.name());
-                                        println!("Writing to file: {:?}", output_file);
-                                        fs::write(output_file, map.create_vertex_csv()).unwrap();
+                                        let path = PathBuf::from(file);
+                                        match map.parse_wmp(&path) {
+                                            Ok(_) => {
+                                                let output_file =
+                                                    format!("{}/{}.csv", script_dir, map.name());
+                                                println!("Writing to file: {:?}", output_file);
+                                                fs::write(output_file, map.create_vertex_csv())
+                                                    .unwrap();
+                                            }
+                                            Err(e) => eprintln!("Error: {}", e),
+                                        }
                                     }
-                                    Err(e) => eprintln!("Error: {}", e),
+                                    _ => {}
                                 }
-                                */
                             }
                             _ => {}
                         }
