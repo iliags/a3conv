@@ -29,7 +29,7 @@ impl OutputImageFormat {
 // TODO: Choose between png and jpeg output
 pub fn convert_image(
     file: &PathBuf,
-    output_dir: &PathBuf,
+    output_dir: &Path,
     output_format: OutputImageFormat,
 ) -> Result<(), &'static str> {
     let name = file

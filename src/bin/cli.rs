@@ -122,7 +122,7 @@ fn main() {
 
             for dir in vec {
                 if !Path::new(&dir).exists() {
-                    std::fs::create_dir_all(&dir).unwrap();
+                    std::fs::create_dir_all(dir).unwrap();
                 }
             }
 
@@ -130,102 +130,93 @@ fn main() {
             // Images
             files
                 .filter_map(Result::ok)
-                .for_each(|f| match f.path().extension() {
-                    Some(e) => {
-                        let file = f.file_name().to_str().unwrap().to_string();
-                        let file = format!("{}/{}", original_directory, file);
+                .for_each(|f| if let Some(e) = f.path().extension() {
+                    let file = f.file_name().to_str().unwrap().to_string();
+                    let file = format!("{}/{}", original_directory, file);
 
-                        match e.to_str().unwrap() {
-                            "pcx" | "PCX" => {
-                                let image_format =
-                                    args.image_format.unwrap_or(OutputImageFormat::Png);
+                    match e.to_str().unwrap() {
+                        "pcx" | "PCX" => {
+                            let image_format =
+                                args.image_format.unwrap_or(OutputImageFormat::Png);
 
-                                match a3conv::image::convert_image(
-                                    &PathBuf::from(file),
-                                    &PathBuf::from(&image_dir),
-                                    image_format,
-                                ) {
-                                    Ok(_) => (),
-                                    Err(e) => eprintln!("Image Error: {}", e),
-                                }
+                            match a3conv::image::convert_image(
+                                &PathBuf::from(file),
+                                &PathBuf::from(&image_dir),
+                                image_format,
+                            ) {
+                                Ok(_) => (),
+                                Err(e) => eprintln!("Image Error: {}", e),
                             }
-                            "wav" | "WAV" => {
-                                let target_file = format!(
-                                    "{}/{}",
-                                    sound_dir,
-                                    f.file_name().to_str().unwrap().to_string()
-                                );
-
-                                let mut source = match std::fs::File::open(&file) {
-                                    Ok(f) => f,
-                                    Err(e) => {
-                                        eprintln!("Error: {}", e);
-                                        return;
-                                    }
-                                };
-                                let mut target = match std::fs::File::create(&target_file) {
-                                    Ok(f) => f,
-                                    Err(e) => {
-                                        eprintln!("Error: {}", e);
-                                        return;
-                                    }
-                                };
-                                match std::io::copy(&mut source, &mut target) {
-                                    Ok(_) => (),
-                                    Err(e) => eprintln!("Error: {}", e),
-                                }
-                            }
-                            "wdl" | "wmp" | "WDL" | "WMP" => {
-                                // TODO: Convert WDL and WMP files, for now just copy them
-
-                                let target_file = format!(
-                                    "{}/{}",
-                                    script_dir,
-                                    f.file_name().to_str().unwrap().to_string()
-                                );
-
-                                let mut source = match std::fs::File::open(&file) {
-                                    Ok(f) => f,
-                                    Err(e) => {
-                                        eprintln!("Error: {}", e);
-                                        return;
-                                    }
-                                };
-                                let mut target = match std::fs::File::create(&target_file) {
-                                    Ok(f) => f,
-                                    Err(e) => {
-                                        eprintln!("Error: {}", e);
-                                        return;
-                                    }
-                                };
-                                match std::io::copy(&mut source, &mut target) {
-                                    Ok(_) => (),
-                                    Err(e) => eprintln!("Error: {}", e),
-                                }
-
-                                /* match e.to_str().unwrap() {
-                                    "wmp" | "WMP" => {
-                                        let mut map = a3conv::map::Map::default();
-
-                                        let path = PathBuf::from(file);
-                                        match map.parse_wmp(&path) {
-                                            Ok(_) => {
-                                                let output_file =
-                                                    format!("{}/{}.csv", script_dir, map.name());
-                                                println!("Writing to file: {:?}", output_file);
-                                                fs::write(output_file, map.create_vertex_csv())
-                                                    .unwrap();
-                                            }
-                                            Err(e) => eprintln!("Error: {}", e),
-                                        }
-                                    }
-                                    _ => {}
-                                } */
-                            }
-                            _ => {}
                         }
+                        "wav" | "WAV" => {
+                            let target_file =
+                                format!("{}/{}", sound_dir, f.file_name().to_str().unwrap());
+
+                            let mut source = match std::fs::File::open(&file) {
+                                Ok(f) => f,
+                                Err(e) => {
+                                    eprintln!("Error: {}", e);
+                                    return;
+                                }
+                            };
+                            let mut target = match std::fs::File::create(&target_file) {
+                                Ok(f) => f,
+                                Err(e) => {
+                                    eprintln!("Error: {}", e);
+                                    return;
+                                }
+                            };
+                            match std::io::copy(&mut source, &mut target) {
+                                Ok(_) => (),
+                                Err(e) => eprintln!("Error: {}", e),
+                            }
+                        }
+                        "wdl" | "wmp" | "WDL" | "WMP" => {
+                            // TODO: Convert WDL and WMP files, for now just copy them
+
+                            let target_file =
+                                format!("{}/{}", script_dir, f.file_name().to_str().unwrap());
+
+                            let mut source = match std::fs::File::open(&file) {
+                                Ok(f) => f,
+                                Err(e) => {
+                                    eprintln!("Error: {}", e);
+                                    return;
+                                }
+                            };
+                            let mut target = match std::fs::File::create(&target_file) {
+                                Ok(f) => f,
+                                Err(e) => {
+                                    eprintln!("Error: {}", e);
+                                    return;
+                                }
+                            };
+                            match std::io::copy(&mut source, &mut target) {
+                                Ok(_) => (),
+                                Err(e) => eprintln!("Error: {}", e),
+                            }
+
+                            /* match e.to_str().unwrap() {
+                                "wmp" | "WMP" => {
+                                    let mut map = a3conv::map::Map::default();
+
+                                    let path = PathBuf::from(file);
+                                    match map.parse_wmp(&path) {
+                                        Ok(_) => {
+                                            let output_file =
+                                                format!("{}/{}.csv", script_dir, map.name());
+                                            println!("Writing to file: {:?}", output_file);
+                                            fs::write(output_file, map.create_vertex_csv())
+                                                .unwrap();
+                                        }
+                                        Err(e) => eprintln!("Error: {}", e),
+                                    }
+                                }
+                                _ => {}
+                            } */
+                        }
+                        _ => {}
                     }
-                    None => {}
                 });
         }
     }

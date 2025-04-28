@@ -12,7 +12,7 @@ use lzss::unlzss;
 
 pub fn extract_archive(input_path: &String, output_path: &String) -> Result<(), io::Error> {
     // Open input file and get the size in bytes
-    let file = File::open(&input_path)?;
+    let file = File::open(input_path)?;
     let asize = file.metadata().unwrap().len() as usize;
 
     //println!("Archive size: {:?}", asize);

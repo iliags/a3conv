@@ -1,7 +1,7 @@
-/// LZSS algorithm based on QuickBMS LZSS implementation
+//! LZSS algorithm based on QuickBMS LZSS implementation
 
-// Note: The first few iterations are a direct translation of the C code, it will be refactored into idiomatic Rust later.
 pub fn unlzss(src_data: &[u8], dest_data: &mut [u8]) -> Result<(), &'static str> {
+    // Note: The first few iterations are a direct translation of the C code, it will be refactored into idiomatic Rust later.
     let ei = 12;
     let ej = 4;
     let p = 2;
@@ -87,7 +87,7 @@ mod tests {
     use super::*;
 
     // Known good compressed and decompressed data from an Acknex WRS archive
-    const COMPRESSED_DATA: &'static [u8] = &[
+    const COMPRESSED_DATA: &[u8] = &[
         223, 10, 5, 1, 8, 0, 242, 240, 35, 0, 63, 31, 0, 44, 1, 44, 1, 242, 241, 1, 15, 252, 19,
         15, 29, 6, 1, 36, 0, 1, 0, 128, 99, 2, 224, 253, 255, 72, 15, 90, 15, 0, 228, 109, 15, 24,
         127, 15, 145, 15, 155, 6, 12, 16, 175, 15, 193, 15, 211, 15, 0, 229, 15, 247, 15, 9, 31,
@@ -98,7 +98,7 @@ mod tests {
     ];
     const _COMPRESSED_SIZE: usize = 145;
 
-    const DECOMPRESSED_DATA: &'static [u8] = &[
+    const DECOMPRESSED_DATA: &[u8] = &[
         10, 5, 1, 8, 0, 0, 0, 0, 35, 0, 31, 0, 44, 1, 44, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 1, 36, 0, 1, 0, 128, 2, 224, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
