@@ -203,7 +203,7 @@ fn main() {
                                     Err(e) => eprintln!("Error: {}", e),
                                 }
 
-                                match e.to_str().unwrap() {
+                                /* match e.to_str().unwrap() {
                                     "wmp" | "WMP" => {
                                         let mut map = a3conv::map::Map::default();
 
@@ -220,7 +220,7 @@ fn main() {
                                         }
                                     }
                                     _ => {}
-                                }
+                                } */
                             }
                             _ => {}
                         }
@@ -230,5 +230,9 @@ fn main() {
         }
     }
 
-    println!("Conversion complete!");
+    if args.convert_files {
+        println!("Conversion complete!");
+    } else {
+        println!("Extraction complete!");
+    }
 }
